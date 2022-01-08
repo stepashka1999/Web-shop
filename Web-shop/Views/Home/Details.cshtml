@@ -3,6 +3,7 @@
 
 <div class="">
     <form method="post">
+        <input aps-for="@Model.Product.Id" hidden />
         <div class="container backgroundWhite pt-4">
             <div class="card" style="border: 1px solid #000000;">
                 <div class="card-header bg-dark text-light ml-0 row container" style="border-radius: 0px">
@@ -44,7 +45,7 @@
                         <div class="col-12 col-md-6">
                             @if(Model.ExistInCart)
                             {
-                                <a asp-action="RemoveFromCart" id="@Model.Product.Id" type="submit" class="btn btn-warning form-control btn-lg" style="height: 50px;">Remopve from Cart</a>
+                                <a asp-action="RemoveFromCart" asp-route-id="@Model.Product.Id" type="submit" class="btn btn-warning form-control btn-lg" style="height: 50px;">Remopve from Cart</a>
                             }
                             else
                             {
