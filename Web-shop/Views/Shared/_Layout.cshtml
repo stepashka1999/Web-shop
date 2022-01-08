@@ -2,11 +2,6 @@
 @using Web_shop.Utility
 @inject IHttpContextAccessor HttpContextAccessor
 
-@{
-    var isAdmin = User.IsInRole(WC.AdminRole);
-    var x = 2;
-}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,35 +28,27 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                          Content Managment
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                          <a class="dropdown-item nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
-                          <a class="dropdown-item nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
-                          @if (User.IsInRole(WC.AdminRole))
-                           {         
-                              <div class="dropdown-divider"></div>
-                              <a class="dropdown-item nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Create Admin User</a>
-                           }
-                        </div>
-                      </li>
-                      <li>
-                          @if (HttpContextAccessor.HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) is not null)
-                            {
-                                <a asp-action="Index" asp-controller="Cart" class="nav-link">
-                                    @{
-                                        var count = HttpContextAccessor.HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart).Count();
-                                    }
-                                    <i class="fas fa-shopping-cart"></i> &nbsp; (@count)
+                            @if (User.IsInRole(WC.AdminRole))
+                            {         
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                                    Content Managment
                                 </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
+                                    <a class="dropdown-item nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Create Admin User</a>
+                                </div>
                             }
-                            else
-                            {
-                                <a href="#" class="nav-link">
-                                    <i class="fas fa-shopping-cart"></i> &nbsp; (0)
-                                </a>
-                            }
+                        </li>
+                        <li>
+                            <a asp-action="Index" asp-controller="Cart" class="nav-link">
+                                @{
+                                    var count = HttpContextAccessor.HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart)?.Count();
+                                    count ??= 0;
+                                }
+                                <i class="fas fa-shopping-cart"></i> &nbsp; (@count)
+                            </a>
                         </li>
                     </ul>
                     
