@@ -8,7 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Web_shop.Data;
+using Web_shop.DataAccess.Data;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
 using Web_shop.Utility;

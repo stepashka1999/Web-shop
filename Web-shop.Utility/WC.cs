@@ -1,4 +1,4 @@
-﻿namespace Web_shop
+﻿namespace Web_shop.Utility
 {
     public static class WC
     {

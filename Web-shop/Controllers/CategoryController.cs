@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web_shop.Data;
+using Web_shop.DataAccess.Data;
 using Web_shop.Models;
+using Web_shop.Utility;
 
 namespace Web_shop.Controllers
 {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Web_shop.Data;
+using Web_shop.DataAccess.Data;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
 using Web_shop.Utility;

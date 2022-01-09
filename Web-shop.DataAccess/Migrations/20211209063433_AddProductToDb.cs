@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Web_shop.Migrations
+namespace Web_shop.DataAccess.Migrations
 {
     public partial class AddProductToDb : Migration
     {

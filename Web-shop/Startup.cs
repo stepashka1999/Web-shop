@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Web_shop.Data;
+using Web_shop.DataAccess.Data;
 using Web_shop.Utility;
 
 namespace Web_shop

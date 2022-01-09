@@ -7,9 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Web_shop.Data;
+using Web_shop.DataAccess.Data;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
+using Web_shop.Utility;
 
 namespace Web_shop.Controllers
 {

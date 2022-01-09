@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web_shop.Models;
 
-namespace Web_shop.Data
+namespace Web_shop.DataAccess.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
