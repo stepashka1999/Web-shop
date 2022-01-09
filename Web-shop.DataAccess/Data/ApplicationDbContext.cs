@@ -16,5 +16,9 @@ namespace Web_shop.DataAccess.Data
         public DbSet<Product> Products { get; set; }
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+        public DbSet<InquieryHeader> InquieryHeaders { get; set; }
+
+        public DbSet<InquieryDetail> InquieryDetails { get; set; }
     }
 }

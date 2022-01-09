@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Web_shop.DataAccess.Data;
+using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
 using Web_shop.Utility;
@@ -15,20 +16,22 @@ namespace Web_shop.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Category> _categoryRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext dbContext)
+        public HomeController(ILogger<HomeController> logger, IRepository<Product> productRepository, IRepository<Category> categoryRepository)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
         {
             var homeVM = new HomeVM()
             {
-                Products = _dbContext.Products.Include(p => p.Category),
-                Categories = _dbContext.Categories
+                Products = _productRepository.All.Include(p => p.Category),
+                Categories = _categoryRepository.All
             };
 
             return View(homeVM);
@@ -39,7 +42,7 @@ namespace Web_shop.Controllers
             var sesionCart = HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart);
             var vm = new DetailsVM()
             {
-                Product = _dbContext.Products.Include(p => p.Category).FirstOrDefault(p => p.Id == id),
+                Product = _productRepository.All.Include(p => p.Category).FirstOrDefault(p => p.Id == id),
                 ExistInCart = sesionCart is not null && sesionCart.Any(c => c.ProductId == id)
             };
 
@@ -59,6 +62,8 @@ namespace Web_shop.Controllers
 
             HttpContext.Session.Set<IEnumerable<ShoppingCart>>(WC.SessionCart, shoppingCartList);
 
+            TempData[WC.SuccessNotification] = $"Product with id {id} added to cart";
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -73,6 +78,8 @@ namespace Web_shop.Controllers
             var cart = sessionCart.FirstOrDefault(c => c.ProductId == id);
             sessionCart.Remove(cart);
             HttpContext.Session.Set<IEnumerable<ShoppingCart>>(WC.SessionCart, sessionCart);
+
+            TempData[WC.SuccessNotification] = $"Product with id {cart.ProductId} removed from cart";
 
             return RedirectToAction(nameof(Index));
         }

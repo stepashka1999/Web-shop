@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web_shop.DataAccess.Data;
+using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Utility;
 
@@ -9,16 +10,17 @@ namespace Web_shop.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IRepository<Category> _categoryRepository;
 
-        public CategoryController(ApplicationDbContext dbContext)
+        public CategoryController(IRepository<Category> repository)
         {
-            _dbContext = dbContext;
+            _categoryRepository = repository;
         }
 
         public IActionResult Index()
         {
-            var categories = _dbContext.Categories;
+            var categories = _categoryRepository.All;
+
             return View(categories);
         }
 
@@ -36,10 +38,11 @@ namespace Web_shop.Controllers
                 return View(category);
             }
 
-            _dbContext.Categories.Add(category);
-            _dbContext.SaveChanges();
+            _categoryRepository.Add(category);
+            _categoryRepository.Save();
+            TempData[WC.SuccessNotification] = "Category added successfully";
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Edit(int id)
@@ -49,14 +52,9 @@ namespace Web_shop.Controllers
                 return NotFound();
             }
 
-            var category = _dbContext.Categories.Find(id);
-
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
+            var category = _categoryRepository.Find(id);
+            
+            return category is null ? NotFound() : View(category);
         }
 
         [HttpPost]
@@ -68,10 +66,11 @@ namespace Web_shop.Controllers
                 return View(category);
             }
 
-            _dbContext.Categories.Update(category);
-            _dbContext.SaveChanges();
+            _categoryRepository.Update(category);
+            _categoryRepository.Save();
+            TempData[WC.SuccessNotification] = $"Category with id equals {category.Id} updated successfully";
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Delete(int id)
@@ -81,16 +80,19 @@ namespace Web_shop.Controllers
                 return NotFound();
             }
 
-            var category = _dbContext.Categories.Find(id);
+            var category = _categoryRepository.Find(id);
             if(category is null)
             {
+                TempData[WC.ErrorNotification] = $"Category with id equals {id} not found";
+
                 return NotFound();
             }
 
-            _dbContext.Categories.Remove(category);
-            _dbContext.SaveChanges();
+            _categoryRepository.Remove(category);
+            _categoryRepository.Save();
+            TempData[WC.SuccessNotification] = $"Category with id equals {id} deleted successfully";
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

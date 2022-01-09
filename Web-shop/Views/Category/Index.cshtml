@@ -4,12 +4,12 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="container p-3">
+<div class="container p-3 bg-white">
     <div class="row pt-4">
-        <div class=col-6>
+        <div class="col-6">
             <h2 class="text-primary">Category List</h2>
         </div>
-        <div class="col-6 text-right">
+        <div class="col-6 text-end">
             <a asp-controller="Category" asp-action="Create" class="btn btn-primary">
                <i class="fas fa-plus"></i> &nbsp; Create new category
             </a>
@@ -18,7 +18,7 @@
 
     @if (Model.Any())
     {
-        <table class="tabel table-bordered tabel-table-striped" style="width:100%">
+        <table class="table table-bordered tabel-table-striped" style="width:100%">
            <thead>
                <tr>
                    <th>Category Name</th>

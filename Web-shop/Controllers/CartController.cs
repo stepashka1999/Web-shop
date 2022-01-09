@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Web_shop.DataAccess.Data;
+using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
 using Web_shop.Utility;
@@ -18,16 +19,27 @@ namespace Web_shop.Controllers
     [Authorize]
     public class CartController : Controller
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<ApplicationUser> _applicationUserRepository;
+        private readonly IRepository<InquieryHeader> _inqueryHeaderRepository;
+        private readonly IRepository<InquieryDetail> _inqueryDetailRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IEmailSender _emailSender;
 
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
 
-        public CartController(ApplicationDbContext dbContext, IWebHostEnvironment env, IEmailSender emailSender)
+        public CartController(IRepository<Product> productRepository, 
+                              IRepository<ApplicationUser> userRepository, 
+                              IRepository<InquieryHeader> inqueryHeaderRepository,
+                              IRepository<InquieryDetail> inqueryDetailRepository,
+                              IWebHostEnvironment env,
+                              IEmailSender emailSender)
         {
-            _dbContext = dbContext;
+            _productRepository = productRepository;
+            _applicationUserRepository = userRepository;
+            _inqueryHeaderRepository = inqueryHeaderRepository;
+            _inqueryDetailRepository = inqueryDetailRepository;
             _webHostEnvironment = env;
             _emailSender = emailSender;
         }
@@ -36,7 +48,7 @@ namespace Web_shop.Controllers
         {
             var shoppingCart = HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart);
             shoppingCart ??= Enumerable.Empty<ShoppingCart>();
-            var products = _dbContext.Products.AsEnumerable().Join(shoppingCart,
+            var products = _productRepository.All.AsEnumerable().Join(shoppingCart,
                                                     product => product.Id,
                                                     cart => cart.ProductId,
                                                     (product, cart) => product);
@@ -58,8 +70,9 @@ namespace Web_shop.Controllers
             var shoppingCart = HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart);
             shoppingCart ??= Enumerable.Empty<ShoppingCart>();
 
-            var products = _dbContext.Products.AsEnumerable()
-                                              .Join(shoppingCart,
+            var products = _productRepository.All
+                                             .AsEnumerable()
+                                             .Join(shoppingCart,
                                                     product => product.Id,
                                                     cart => cart.ProductId,
                                                     (product, cart) => product);
@@ -67,7 +80,7 @@ namespace Web_shop.Controllers
             ProductUserVM = new ProductUserVM()
             {
                 Products = products.ToList(),
-                User = _dbContext.ApplicationUsers.FirstOrDefault(u => u.Id == userId)
+                User = _applicationUserRepository.FirstOrDefault(u => u.Id == userId)
             };
 
             return View(ProductUserVM);
@@ -93,6 +106,32 @@ namespace Web_shop.Controllers
 
             await _emailSender.SendEmailAsync(WC.AdminEmail, subject, htmlBody);
 
+            var claimIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            var inqueryHeader = new InquieryHeader()
+            {
+                ApplicationUserId = claim.Value,
+                FullName = productUserVM.User.FullName,
+                Email = productUserVM.User.Email,
+                PhoneNumber = productUserVM.User.PhoneNumber,
+                InquireDate = System.DateTime.Now
+            };
+            _inqueryHeaderRepository.Add(inqueryHeader);
+            _inqueryHeaderRepository.Save();
+
+            foreach(var prod in ProductUserVM.Products) 
+            {
+                var inquieryDetail = new InquieryDetail()
+                {
+                    InquieryHeaderId = inqueryHeader.Id,
+                    ProductId = prod.Id
+                };
+                _inqueryDetailRepository.Add(inquieryDetail);
+            }
+
+            _inqueryDetailRepository.Save();
+
             return RedirectToAction(nameof(InqueryConfirmation));
         }
 
@@ -114,6 +153,7 @@ namespace Web_shop.Controllers
             var cart = sessionCart.FirstOrDefault(c => c.ProductId == id);
             sessionCart.Remove(cart);
             HttpContext.Session.Set<IEnumerable<ShoppingCart>>(WC.SessionCart, sessionCart);
+            TempData[WC.SuccessNotification] = $"Product with id {cart.ProductId} removed from cart";
 
             return RedirectToAction(nameof(Index));
         }
