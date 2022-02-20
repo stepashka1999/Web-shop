@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
 using Web_shop.DataAccess.Data;
+using Web_shop.Utility;
 
 namespace Web_shop.DataAccess.Repository
 {
@@ -25,6 +27,11 @@ namespace Web_shop.DataAccess.Repository
         public void Add(T entity)
         {
             _dbSet.Add(entity);
+        }
+
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
         }
 
         public T Find(int id)
@@ -68,7 +75,7 @@ namespace Web_shop.DataAccess.Repository
             _dbSet.Remove(entity);
         }
 
-        public void Remove(IEnumerable<T> entities)
+        public void RemoveRange(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
         }
@@ -81,6 +88,24 @@ namespace Web_shop.DataAccess.Repository
         public void Update(T entity)
         {
             _dbSet.Update(entity);
+        }
+
+        public IEnumerable<SelectListItem> GetDropdownList(string paramenterType)
+        {
+            return paramenterType switch
+            {
+                WC.ApplicationTypeName => _dbContext.ApplicationType.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                }),
+                WC.CategoryName => _dbContext.Category.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                }),
+                _ => Enumerable.Empty<SelectListItem>(),
+            };
         }
     }
 }

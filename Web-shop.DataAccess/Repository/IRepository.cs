@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,12 +25,16 @@ namespace Web_shop.DataAccess.Repository
 
         void Add(T entity);
 
+        public void AddRange(IEnumerable<T> entities);
+
         void Remove(T entity);
 
-        void Remove(IEnumerable<T> entity);
+        void RemoveRange(IEnumerable<T> entity);
 
         void Save();
 
         void Update(T entity);
+
+        IEnumerable<SelectListItem> GetDropdownList(string paramenterType);
     }
 }

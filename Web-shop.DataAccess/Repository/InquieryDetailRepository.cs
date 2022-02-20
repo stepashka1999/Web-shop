@@ -3,8 +3,8 @@ using Web_shop.Models;
 
 namespace Web_shop.DataAccess.Repository
 {
-    public class InquieryDetailRepository : Repository<InquieryDetail>
+    public class InquiryDetailRepository : Repository<InquiryDetail>
     {
-        public InquieryDetailRepository(ApplicationDbContext dbContext) : base(dbContext) { }
+        public InquiryDetailRepository(ApplicationDbContext dbContext) : base(dbContext) { }
     }
 }

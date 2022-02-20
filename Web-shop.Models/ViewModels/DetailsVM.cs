@@ -4,6 +4,6 @@
     {
         public Product Product { get; set; }
 
-        public bool ExistInCart { get; set; } = false;
+        public bool ExistsInCart { get; set; } = false;
     }
 }
