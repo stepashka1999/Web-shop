@@ -53,7 +53,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<string>("Desctiption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageLink")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")

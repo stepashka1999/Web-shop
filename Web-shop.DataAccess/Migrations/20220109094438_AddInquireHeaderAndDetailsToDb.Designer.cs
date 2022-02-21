@@ -242,14 +242,14 @@ namespace Web_shop.DataAccess.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Web_shop.Models.InquieryDetail", b =>
+            modelBuilder.Entity("Web_shop.Models.InquiryDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("InquieryHeaderId")
+                    b.Property<int>("InquiryHeaderId")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductId")
@@ -257,14 +257,14 @@ namespace Web_shop.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InquieryHeaderId");
+                    b.HasIndex("InquiryHeaderId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("InquieryDetails");
+                    b.ToTable("InquiryDetails");
                 });
 
-            modelBuilder.Entity("Web_shop.Models.InquieryHeader", b =>
+            modelBuilder.Entity("Web_shop.Models.InquiryHeader", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -282,7 +282,7 @@ namespace Web_shop.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("InquireDate")
+                    b.Property<DateTime>("InquiryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PhoneNumber")
@@ -293,7 +293,7 @@ namespace Web_shop.DataAccess.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("InquieryHeaders");
+                    b.ToTable("InquiryHeaders");
                 });
 
             modelBuilder.Entity("Web_shop.Models.Product", b =>
@@ -309,7 +309,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<string>("Desctiption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageLink")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -319,7 +319,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ShortDescription")
+                    b.Property<string>("ShortDescriptionription")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -390,11 +390,11 @@ namespace Web_shop.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Web_shop.Models.InquieryDetail", b =>
+            modelBuilder.Entity("Web_shop.Models.InquiryDetail", b =>
                 {
-                    b.HasOne("Web_shop.Models.InquieryHeader", "InquieryHeader")
+                    b.HasOne("Web_shop.Models.InquiryHeader", "InquiryHeader")
                         .WithMany()
-                        .HasForeignKey("InquieryHeaderId")
+                        .HasForeignKey("InquiryHeaderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -404,12 +404,12 @@ namespace Web_shop.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InquieryHeader");
+                    b.Navigation("InquiryHeader");
 
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Web_shop.Models.InquieryHeader", b =>
+            modelBuilder.Entity("Web_shop.Models.InquiryHeader", b =>
                 {
                     b.HasOne("Web_shop.Models.ApplicationUser", "ApplicationUser")
                         .WithMany()

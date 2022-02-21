@@ -9,8 +9,8 @@ using Web_shop.DataAccess.Data;
 namespace Web_shop.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220103110958_AddShortDescToProductTabel")]
-    partial class AddShortDescToProductTabel
+    [Migration("20220103110958_AddShortDescriptionToProductTabel")]
+    partial class AddShortDescriptionToProductTabel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -52,7 +52,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<string>("Desctiption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageLink")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -62,7 +62,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ShortDescription")
+                    b.Property<string>("ShortDescriptionription")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

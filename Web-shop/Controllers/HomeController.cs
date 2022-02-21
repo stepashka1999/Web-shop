@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Web_shop.DataAccess.Data;
+
 using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
@@ -16,22 +16,25 @@ namespace Web_shop.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Product> _prodRepo;
+        private readonly IRepository<Category> _catRepo;
 
-        public HomeController(ILogger<HomeController> logger, IRepository<Product> productRepository, IRepository<Category> categoryRepository)
+        public HomeController(ILogger<HomeController> logger,
+                              IRepository<Product> prodRepo,
+                              IRepository<Category> catRepo)
         {
             _logger = logger;
-            _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
+            _prodRepo = prodRepo;
+            _catRepo = catRepo;
         }
 
         public IActionResult Index()
         {
             var homeVM = new HomeVM()
             {
-                Products = _productRepository.All.Include(p => p.Category),
-                Categories = _categoryRepository.All
+                Products = _prodRepo.All.Include(p => p.Category)
+                                        .Include(p => p.ApplicationType),
+                Categories = _catRepo.All
             };
 
             return View(homeVM);
@@ -39,60 +42,65 @@ namespace Web_shop.Controllers
 
         public IActionResult Details(int id)
         {
-            var sesionCart = HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart);
-            var vm = new DetailsVM()
+            var shoppingCartList = new List<ShoppingCart>();
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) is not null
+                && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart).Any())
             {
-                Product = _productRepository.All.Include(p => p.Category).FirstOrDefault(p => p.Id == id),
-                ExistInCart = sesionCart is not null && sesionCart.Any(c => c.ProductId == id)
-            };
-
-            return View(vm);
-        }
-
-        [HttpPost, ActionName("Details")]
-        public IActionResult DetailsPost(int id)
-        {
-            var shoppingCartList = HttpContext.Session.Get<IList<ShoppingCart>>(WC.SessionCart);
-            if (shoppingCartList is null)
-            {
-                shoppingCartList = new List<ShoppingCart>();
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
             }
 
-            shoppingCartList.Add(new ShoppingCart() { ProductId = id });
+            var detailsVM = new DetailsVM()
+            {
+                Product = _prodRepo.All.Include(p => p.Category)
+                                       .Include(p => p.ApplicationType)
+                                       .FirstOrDefault(u => u.Id == id),
+                ExistsInCart = shoppingCartList.Any(i => i.ProductId == id)
+            };
 
-            HttpContext.Session.Set<IEnumerable<ShoppingCart>>(WC.SessionCart, shoppingCartList);
+            return View(detailsVM);
+        }
 
-            TempData[WC.SuccessNotification] = $"Product with id {id} added to cart";
+        [HttpPost,ActionName("Details")]
+        public IActionResult DetailsPost(int id, DetailsVM detailsVM)
+        {
+            var shoppingCartList = new List<ShoppingCart>();
+            if(HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) is not null
+                && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart).Any())
+            {
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
+            }
 
+            shoppingCartList.Add(new ShoppingCart { ProductId = id, SqFt= detailsVM.Product.TempSqFt});
+            HttpContext.Session.Set(WC.SessionCart, shoppingCartList);
+            TempData[WC.Success] = "Item add to cart successfully";
+            
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult RemoveFromCart(int id)
         {
-            var sessionCart = HttpContext.Session.Get<IList<ShoppingCart>>(WC.SessionCart);
-            if(sessionCart is null || !sessionCart.Any(c => c.ProductId == id))
+            var shoppingCartList = new List<ShoppingCart>();
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) is not null
+                && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart).Any())
             {
-                return NotFound();
+                shoppingCartList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
             }
 
-            var cart = sessionCart.FirstOrDefault(c => c.ProductId == id);
-            sessionCart.Remove(cart);
-            HttpContext.Session.Set<IEnumerable<ShoppingCart>>(WC.SessionCart, sessionCart);
-
-            TempData[WC.SuccessNotification] = $"Product with id {cart.ProductId} removed from cart";
-
+            var itemToRemove = shoppingCartList.SingleOrDefault(r => r.ProductId == id);
+            if (itemToRemove != null)
+            {
+                shoppingCartList.Remove(itemToRemove);
+            }
+            
+            HttpContext.Session.Set(WC.SessionCart, shoppingCartList);
+            TempData[WC.Success] = "Item removed from cart successfully";
+            
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        public IActionResult Privacy() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

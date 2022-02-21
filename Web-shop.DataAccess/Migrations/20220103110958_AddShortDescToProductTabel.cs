@@ -2,12 +2,12 @@
 
 namespace Web_shop.DataAccess.Migrations
 {
-    public partial class AddShortDescToProductTabel : Migration
+    public partial class AddShortDescriptionToProductTabel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "ShortDescription",
+                name: "ShortDescriptionription",
                 table: "Products",
                 type: "nvarchar(max)",
                 nullable: true);
@@ -16,7 +16,7 @@ namespace Web_shop.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ShortDescription",
+                name: "ShortDescriptionription",
                 table: "Products");
         }
     }

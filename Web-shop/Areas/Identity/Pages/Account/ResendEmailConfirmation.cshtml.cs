@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace Web_shop.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
-    public class ResendEmailConfirmationModel : PageModel
+    public abstract class ResendEmailConfirmationModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailSender _emailSender;

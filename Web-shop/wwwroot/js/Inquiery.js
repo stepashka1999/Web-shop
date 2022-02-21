@@ -1,13 +1,13 @@
 ﻿var dataTable;
 
 $(document).ready(function () {
-    loadDataTable("GetInquieryList");
+    loadDataTable("GetInquiryList");
 });
 
 function loadDataTable(url) {
     dataTable = $('#tblData').DataTable({
         "ajax": {
-            "url": "/inquiery/" + url
+            "url": "/Inquiry/" + url
         },
         "columns": [
             { "data": "id", "width": "10%" },

@@ -10,6 +10,7 @@ using Web_shop.DataAccess.Data;
 using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Utility;
+using Web_shop.Utility.BrainTree;
 
 namespace Web_shop
 {
@@ -31,12 +32,17 @@ namespace Web_shop
                     .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<BrainTreeSettings>(Configuration.GetSection("BrainTree"));
+            services.AddSingleton<IBrainTreeGate, BrainTreeGate>();
 
             services.AddScoped<IRepository<Category>, CategoryRepository>();
             services.AddScoped<IRepository<Product>, ProductRepository>();
             services.AddScoped<IRepository<ApplicationUser>, ApplicationUserRepository>();
-            services.AddScoped<IRepository<InquieryHeader>, InquieryHeaderRepository>();
-            services.AddScoped<IRepository<InquieryDetail>, InquieryDetailRepository>();
+            services.AddScoped<IRepository<ApplicationType>, ApplicationTypeRepository>();
+            services.AddScoped<IRepository<InquiryHeader>, InquiryHeaderRepository>();
+            services.AddScoped<IRepository<InquiryDetail>, InquiryDetailRepository>();
+            services.AddScoped<IRepository<OrderHeader>, OrderHeaderRepository>();
+            services.AddScoped<IRepository<OrderDetail>, OrderDetailRepository>();
 
             services.AddHttpContextAccessor();
             services.AddSession(opt =>
@@ -45,6 +51,13 @@ namespace Web_shop
                 opt.Cookie.HttpOnly = true;
                 opt.Cookie.IsEssential = true;
             });
+
+            services.AddAuthentication().AddFacebook(options =>
+            {
+                options.AppId = "267080392231775";
+                options.AppSecret = "3f0ccf73281c1c2e7b124fc91db9c823";
+            });
+
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }

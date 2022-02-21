@@ -8,22 +8,22 @@ namespace Web_shop.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "InquieryHeaders",
+                name: "InquiryHeaders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    InquireDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    InquiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InquieryHeaders", x => x.Id);
+                    table.PrimaryKey("PK_InquiryHeaders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_InquieryHeaders_AspNetUsers_ApplicationUserId",
+                        name: "FK_InquiryHeaders_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -31,25 +31,25 @@ namespace Web_shop.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InquieryDetails",
+                name: "InquiryDetails",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    InquieryHeaderId = table.Column<int>(type: "int", nullable: false),
+                    InquiryHeaderId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InquieryDetails", x => x.Id);
+                    table.PrimaryKey("PK_InquiryDetails", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_InquieryDetails_InquieryHeaders_InquieryHeaderId",
-                        column: x => x.InquieryHeaderId,
-                        principalTable: "InquieryHeaders",
+                        name: "FK_InquiryDetails_InquiryHeaders_InquiryHeaderId",
+                        column: x => x.InquiryHeaderId,
+                        principalTable: "InquiryHeaders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InquieryDetails_Products_ProductId",
+                        name: "FK_InquiryDetails_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -57,28 +57,28 @@ namespace Web_shop.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_InquieryDetails_InquieryHeaderId",
-                table: "InquieryDetails",
-                column: "InquieryHeaderId");
+                name: "IX_InquiryDetails_InquiryHeaderId",
+                table: "InquiryDetails",
+                column: "InquiryHeaderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InquieryDetails_ProductId",
-                table: "InquieryDetails",
+                name: "IX_InquiryDetails_ProductId",
+                table: "InquiryDetails",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InquieryHeaders_ApplicationUserId",
-                table: "InquieryHeaders",
+                name: "IX_InquiryHeaders_ApplicationUserId",
+                table: "InquiryHeaders",
                 column: "ApplicationUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "InquieryDetails");
+                name: "InquiryDetails");
 
             migrationBuilder.DropTable(
-                name: "InquieryHeaders");
+                name: "InquiryHeaders");
         }
     }
 }

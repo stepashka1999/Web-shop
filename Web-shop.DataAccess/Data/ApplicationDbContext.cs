@@ -11,14 +11,20 @@ namespace Web_shop.DataAccess.Data
 
         }
 
-        public DbSet<Category> Categories { get; set; }
-
-        public DbSet<Product> Products { get; set; }
-
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
-        public DbSet<InquieryHeader> InquieryHeaders { get; set; }
-
-        public DbSet<InquieryDetail> InquieryDetails { get; set; }
+        public DbSet<Category> Category { get; set; }
+        
+        public DbSet<ApplicationType> ApplicationType { get; set; }
+        
+        public DbSet<Product> Product { get; set; }
+        
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
+        
+        public DbSet<InquiryHeader> InquiryHeader { get; set; }
+        
+        public DbSet<InquiryDetail> InquiryDetail { get; set; }
+        
+        public DbSet<OrderHeader> OrderHeader { get; set; }
+        
+        public DbSet<OrderDetail> OrderDetail { get; set; }
     }
 }

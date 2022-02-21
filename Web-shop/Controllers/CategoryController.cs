@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web_shop.DataAccess.Data;
+
 using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Utility;
@@ -10,89 +10,89 @@ namespace Web_shop.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class CategoryController : Controller
     {
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Category> _catRepo;
 
-        public CategoryController(IRepository<Category> repository)
+        public CategoryController(IRepository<Category> catRepo)
         {
-            _categoryRepository = repository;
+            _catRepo = catRepo;
         }
 
-        public IActionResult Index()
-        {
-            var categories = _categoryRepository.All;
+        public IActionResult Index() => View(_catRepo.All);
 
-            return View(categories);
-        }
-
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Category category)
+        public IActionResult Create(Category obj)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(category);
+                _catRepo.Add(obj);
+                _catRepo.Save();
+                TempData[WC.Success] = "Category created successfully";
+                return RedirectToAction(nameof(Index));
             }
 
-            _categoryRepository.Add(category);
-            _categoryRepository.Save();
-            TempData[WC.SuccessNotification] = "Category added successfully";
+            TempData[WC.Error] = "Error while creating category";
 
-            return RedirectToAction(nameof(Index));
+            return View(obj);
         }
 
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int? id)
         {
-            if(id == 0)
+            if(!id.HasValue || id == 0)
             {
                 return NotFound();
             }
 
-            var category = _categoryRepository.Find(id);
+            var obj = _catRepo.Find(id.GetValueOrDefault());
+
+            return obj is null ? NotFound() : View(obj);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Category obj)
+        {
+            if (ModelState.IsValid)
+            {
+                _catRepo.Update(obj);
+                _catRepo.Save();
+                TempData[WC.Success] = "Action completed successfully";
+
+                return RedirectToAction("Index");
+            }
+
+            return View(obj);
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            if (!id.HasValue || id == 0)
+            {
+                return NotFound();
+            }
+
+            var obj = _catRepo.Find(id.GetValueOrDefault());
             
-            return category is null ? NotFound() : View(category);
+            return obj is null ? NotFound() : View(obj);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Category category)
+        public IActionResult DeletePost(int? id)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(category);
-            }
-
-            _categoryRepository.Update(category);
-            _categoryRepository.Save();
-            TempData[WC.SuccessNotification] = $"Category with id equals {category.Id} updated successfully";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult Delete(int id)
-        {
-            if(id == 0)
+            var obj = _catRepo.Find(id.GetValueOrDefault());
+            if (obj == null)
             {
                 return NotFound();
             }
 
-            var category = _categoryRepository.Find(id);
-            if(category is null)
-            {
-                TempData[WC.ErrorNotification] = $"Category with id equals {id} not found";
-
-                return NotFound();
-            }
-
-            _categoryRepository.Remove(category);
-            _categoryRepository.Save();
-            TempData[WC.SuccessNotification] = $"Category with id equals {id} deleted successfully";
-
-            return RedirectToAction(nameof(Index));
+            TempData[WC.Success] = "Action completed successfully";
+            _catRepo.Remove(obj);
+            _catRepo.Save();
+        
+            return RedirectToAction("Index");
         }
     }
 }

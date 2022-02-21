@@ -1,7 +1,6 @@
-﻿@using Web_shop.Models.ViewModels
-@model ProductUserVM
+﻿@model Web_shop.Models.ViewModels.ProductUserVM
 
-<form method="post">
+<form method="post" id="payment-form">
     <br />
     <div class="backgroundWhiteBorder">
         <div class="container">
@@ -12,7 +11,7 @@
                         Order Summary
                     </div>
                     <div class="col-6 text-right">
-                        <a class="btn btn-outline-info btn-sm">Back to Cart</a>
+                        <a class="btn btn-outline-info btn-sm" asp-action="Index">Back to Cart</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -21,7 +20,7 @@
                             <div class="col-12 col-lg-7 pb-4">
                                 <div class="row">
                                     <h4 class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-info">PickUp Details:</span>
+                                        <span class="text-info">User Details:</span>
                                     </h4>
                                 </div>
                                 <div class="row my-1">
@@ -29,17 +28,15 @@
                                         <label>Name</label>
                                     </div>
                                     <div class="col-9">
-                                        <input type="text" class="form-control" asp-for="User.FullName" />
-                                        <span class="text-danger" asp-validation-for="User.FullName"></span>
+                                        <input asp-for="User.FullName" type="text" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="row my-1">
                                     <div class="col-3">
-                                        <label>Phone Number</label>
+                                        <label>Phone</label>
                                     </div>
                                     <div class="col-9">
-                                        <input type="text" class="form-control" asp-for="User.PhoneNumber"/>
-                                        <span class="text-danger" asp-validation-for="User.PhoneNumber"></span>
+                                        <input asp-for="User.PhoneNumber" required type="text" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="row my-1">
@@ -47,29 +44,100 @@
                                         <label>Email</label>
                                     </div>
                                     <div class="col-9">
-                                        <input type="text" class="form-control" asp-for="User.Email" />
-                                        <span class="text-danger" asp-validation-for="User.Email"></span>
+                                        <input asp-for="User.Email" required type="text" class="form-control" />
                                     </div>
                                 </div>
+                                @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                                {
+
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Address</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input asp-for="User.StreetAddress" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>City</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input asp-for="User.City" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>State</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input asp-for="User.State" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row my-1">
+                                        <div class="col-3">
+                                            <label>Poastal Code</label>
+                                        </div>
+                                        <div class="col-9">
+                                            <input asp-for="User.PostalCode" type="text" class="form-control" />
+                                        </div>
+                                    </div>
+                                }
                             </div>
                             <div class="col-12 col-lg-5 row">
                                 <div class="col-12">
                                     <h4 class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-info">Order Summary:</span>
+                                        <span class="text-info">Summary:</span>
                                     </h4>
                                     <ul class="list-group mb-3">
-                                        @for(var i = 0; i < Model.Products.Count; i++)
+                                        @{ var orderTotal = 0.0;}
+
+                                        @for (int i = 0; i < Model.Products.Count(); i++)
                                         {
-                                            <input hidden asp-for="Products[i].Id" />
+                                            <input type="hidden" asp-for="@Model.Products[i].Id" />
+                                            <input type="hidden" asp-for="@Model.Products[i].Name" />
+                                            <input type="hidden" asp-for="@Model.Products[i].Price" />
+                                            <input type="hidden" asp-for="@Model.Products[i].TempSqFt" />
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.Products[i].Name</h6>
-                                                    <small class="text-muted">Price per Sqft: @Model.Products.ToList()[i].Price</small>
+                                                    @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                                                    {
+                                                        <small class="text-muted">Sqft: @Model.Products[i].TempSqFt</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <small class="text-muted">Price per Sqft: $@Model.Products[i].Price</small>
+                                                    }
                                                 </div>
+                                                @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                                                {
+                                                    <span class="text-muted">$@(Model.Products[i].Price * Model.Products[i].TempSqFt)</span>
+                                                }
+                                            </li>
+                                            orderTotal += Model.Products[i].Price * Model.Products[i].TempSqFt;
+                                        }
+                                        @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between bg-light">
+                                                <small class="text-info"> Total (USD)</small>
+                                                <strong class="text-info">$@orderTotal</strong>
                                             </li>
                                         }
                                     </ul>
                                 </div>
+                                @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                                {
+                                    <div class="col-12">
+                                            <div class="container">
+                                                <div id="dropin-container"></div>
+                                                <input id="nonce" name="payment_method_nonce" type="hidden" />
+                                            </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -77,7 +145,14 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-12 col-md-5 offset-md-7">
-                            <button type="submit" class="btn btn-primary form-control">Submit Inquiry</button>
+                            @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
+                            {
+                                <button class="btn btn-success form-control" onclick="return validateInput()" id="submit-button">Submit Order</button>
+                            }
+                            else
+                            {
+                                <button type="submit"  onclick="return validateInput()" class="btn btn-primary form-control">Submit Inquiry</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -89,4 +164,61 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://js.braintreegateway.com/web/dropin/1.22.1/js/dropin.min.js"></script>
+    <script>
+        var client_token = "@ViewBag.ClientToken";
+        var form = document.querySelector('#payment-form');
+
+        braintree.dropin.create({
+            authorization: client_token,
+              container: '#dropin-container'
+            }, function (createErr, instance) {
+                    form.addEventListener('submit', function () {
+                        event.preventDefault();
+
+                        //Add the nonce to the form and submit
+                                instance.requestPaymentMethod(function (err, payload) {
+                                    // Submit payload.nonce to your server
+                                    document.querySelector('#nonce').value = payload.nonce;
+                                    form.submit();
+                                });
+                            });
+        });
+
+
+        function validateInput() {
+            var app_name = document.getElementById("ApplicationUser_FullName").value;
+            var app_phone = document.getElementById("ApplicationUser_PhoneNumber").value;
+            var app_email = document.getElementById("ApplicationUser_Email").value;
+
+            if (app_name.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Full Name!'
+                })
+                return false;
+            }
+            if (app_phone.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Phone Number!'
+                })
+                return false;
+            }
+            if (app_email.toString() == '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter Email!'
+                })
+                return false;
+            }
+
+            return true;
+
+        }
+    </script>
+   
 }

@@ -259,7 +259,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<string>("Desctiption")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageLink")
+                    b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -269,7 +269,7 @@ namespace Web_shop.DataAccess.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("ShortDescription")
+                    b.Property<string>("ShortDescriptionription")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

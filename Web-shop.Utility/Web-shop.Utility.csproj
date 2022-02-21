@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -7,7 +7,12 @@
 
   <ItemGroup>
 	<PackageReference Include="Mailjet.Api" Version="1.2.2" />
+	<PackageReference Include="Braintree" Version="4.17.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Web-shop.Models\Web-shop.Models.csproj" />
   </ItemGroup>
 
 </Project>

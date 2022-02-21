@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Web_shop.DataAccess.Data;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Models.ViewModels;
@@ -18,127 +17,143 @@ namespace Web_shop.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class ProductController : Controller
     {
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Product> _prodRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
-        public ProductController(IRepository<Product> productRepository, IRepository<Category> categoryRepository, IWebHostEnvironment eviroment)
+        
+        public ProductController(IRepository<Product> prodRepo, IWebHostEnvironment webHostEnvironment)
         {
-            _productRepository = productRepository;
-            _categoryRepository = categoryRepository;
-            _webHostEnvironment = eviroment;
+            _prodRepo = prodRepo;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
         {
-            var productst = _productRepository.All.Include(x => x.Category);
-            return View(productst);
+            var objList = _prodRepo.All.Include(p => p.Category)
+                                       .Include(p => p.ApplicationType);
+
+            return View(objList);
         }
 
         public IActionResult Upsert(int? id)
         {
             var productVM = new ProductVM()
             {
-                Categories = _categoryRepository.All.AsEnumerable().Select(c => new SelectListItem() { Text = c.Name, Value = c.Id.ToString() })
+                Product = new Product(),
+                CategorySelectList = _prodRepo.GetDropdownList(WC.CategoryName),
+                ApplicationTypeSelectList = _prodRepo.GetDropdownList(WC.ApplicationTypeName),
             };
 
-            if(id is null)
+            if (id is null)
             {
-                TempData[WC.ErrorNotification] = $"Product id was null";
-
                 return View(productVM);
             }
-
-            var product = _productRepository.Find(id.Value);
-            if(product is null)
+            else
             {
-                TempData[WC.ErrorNotification] = $"Product with id equals {id.Value} not found";
+                productVM.Product = _prodRepo.Find(id.GetValueOrDefault());
 
-                return NotFound();
+                return productVM.Product is null ? NotFound() : View(productVM);
             }
-
-            productVM.Product = product;
-
-            return View(productVM);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Upsert(ProductVM productVM)
         {
-            if(!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(productVM);
-            }
-            
-            //Update
-            if (productVM.Product.Id != 0)
-            {
-                var product = productVM.Product;
-                //File logic
-                var oldProduct = _productRepository.All.AsNoTracking().FirstOrDefault(p => p.Id == product.Id);
-                product.ImageLink = oldProduct.ImageLink;
-                if (HttpContext.Request.Form.Files.Any())
-                {
-                    var file = HttpContext.Request.Form.Files[0];
-                    var newFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    var fileStream = System.IO.File.Create(Path.Combine(_webHostEnvironment.WebRootPath, WC.ImagePath, newFileName));
-                    file.CopyTo(fileStream);
-                    product.ImageLink = newFileName;
+                var files = HttpContext.Request.Form.Files;
+                var webRootPath = _webHostEnvironment.WebRootPath;
 
-                    if (oldProduct.ImageLink is not null)
+                if (productVM.Product.Id == 0)
+                {
+                    var upload = webRootPath + WC.ImagePath;
+                    var fileName = Guid.NewGuid().ToString();
+                    var extension = Path.GetExtension(files[0].FileName);
+
+                    using (var fileStream = new FileStream(Path.Combine(upload, fileName + extension), FileMode.Create))
                     {
-                        var oldFileFullPath = Path.Combine(_webHostEnvironment.WebRootPath, WC.ImagePath, oldProduct.ImageLink);
-                        if (System.IO.File.Exists(oldFileFullPath))
-                        {
-                            System.IO.File.Delete(oldFileFullPath);
-                        }
+                        files[0].CopyTo(fileStream);
                     }
+
+                    productVM.Product.Image = fileName + extension;
+                    _prodRepo.Add(productVM.Product);
                 }
-
-                _productRepository.Update(product);
-                _productRepository.Save();
-                TempData[WC.SuccessNotification] = $"Product was successfully updated";
-
-                return RedirectToAction(nameof(Index));
-            }
-                        
-            _productRepository.Add(productVM.Product);
-            _productRepository.Save();
-            TempData[WC.SuccessNotification] = $"Product was successfully created";
-
-
-            return RedirectToAction(nameof(Index));
-        }
-        
-        public IActionResult Delete(int id)
-        {
-            if (id == 0)
-            {
-                return NotFound();
-            }
-
-            var product = _productRepository.All.Include(p => p.Category).FirstOrDefault(p => p.Id == id);
-            if (product is null)
-            {
-                TempData[WC.ErrorNotification] = $"Product with id equals {id} not found";
-
-                return NotFound();
-            }
-
-            if (product.ImageLink is not null)
-            {
-                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, WC.ImagePath, product.ImageLink);
-                if (System.IO.File.Exists(imagePath))
+                else
                 {
-                    System.IO.File.Delete(imagePath);
+                    var objFromDb = _prodRepo.FirstOrDefault(u => u.Id == productVM.Product.Id,isTracking:false);
+                    if (files.Any())
+                    {
+                        var upload = webRootPath + WC.ImagePath;
+                        var fileName = Guid.NewGuid().ToString();
+                        var extension = Path.GetExtension(files[0].FileName);
+                        var oldFile = Path.Combine(upload, objFromDb.Image);
+                        if (System.IO.File.Exists(oldFile))
+                        {
+                            System.IO.File.Delete(oldFile);
+                        }
+                                                
+                        using (var fileStream = new FileStream(Path.Combine(upload, fileName + extension), FileMode.Create))
+                        {
+                            files[0].CopyTo(fileStream);
+                        }
+
+                        productVM.Product.Image = fileName + extension;
+                    }
+                    else
+                    {
+                        productVM.Product.Image = objFromDb.Image;
+                    }
+
+                    _prodRepo.Update(productVM.Product);
                 }
+
+                TempData[WC.Success] = "Action completed successfully";
+                _prodRepo.Save();
+                
+                return RedirectToAction("Index");
             }
 
-            _productRepository.Remove(product);
-            _productRepository.Save();
-            TempData[WC.ErrorNotification] = $"Product with id equals {id} was successfully deleted";
+            productVM.CategorySelectList = _prodRepo.GetDropdownList(WC.CategoryName);
+            productVM.ApplicationTypeSelectList = _prodRepo.GetDropdownList(WC.ApplicationTypeName);
+         
+            return View(productVM);
+        }
 
+        public IActionResult Delete(int? id)
+        {
+            if (!id.HasValue || id == 0)
+            {
+                return NotFound();
+            }
+
+            var product = _prodRepo.All.Include(p => p.Category)
+                                       .Include(p => p.ApplicationType)
+                                       .FirstOrDefault(u => u.Id == id);
+
+            return product is null ? NotFound() : View(product);
+        }
+
+        [HttpPost,ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePost(int? id)
+        {
+            var obj = _prodRepo.Find(id.GetValueOrDefault());
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            var upload = _webHostEnvironment.WebRootPath + WC.ImagePath;
+            var oldFile = Path.Combine(upload, obj.Image);
+
+            if (System.IO.File.Exists(oldFile))
+            {
+                System.IO.File.Delete(oldFile);
+            }
+
+            _prodRepo.Remove(obj);
+            _prodRepo.Save();
+            TempData[WC.Success] = "Action completed successfully";
 
             return RedirectToAction(nameof(Index));
         }
