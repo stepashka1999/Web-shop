@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Web_shop.DataAccess.Data;
+using Web_shop.DataAccess.Initializer;
 using Web_shop.DataAccess.Repository;
 using Web_shop.Models;
 using Web_shop.Utility;
@@ -43,6 +44,7 @@ namespace Web_shop
             services.AddScoped<IRepository<InquiryDetail>, InquiryDetailRepository>();
             services.AddScoped<IRepository<OrderHeader>, OrderHeaderRepository>();
             services.AddScoped<IRepository<OrderDetail>, OrderDetailRepository>();
+            services.AddScoped<IDbInitializer, DbInitializer>();
 
             services.AddHttpContextAccessor();
             services.AddSession(opt =>
@@ -62,7 +64,7 @@ namespace Web_shop
             services.AddRazorPages().AddRazorRuntimeCompilation();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
@@ -75,16 +77,14 @@ namespace Web_shop
             }
 
             app.UseHttpsRedirection();
-            
             app.UseStaticFiles();
-            
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
+            dbInitializer.Initialize();
             
             app.UseSession();
-            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
