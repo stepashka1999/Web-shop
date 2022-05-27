@@ -66,7 +66,7 @@ namespace Web_shop.Controllers
 
                 if (productVM.Product.Id == 0)
                 {
-                    var upload = webRootPath + WC.ImagePath;
+                    var upload = Path.Combine(webRootPath, WC.ImagePath);
                     var fileName = Guid.NewGuid().ToString();
                     var extension = Path.GetExtension(files[0].FileName);
 
@@ -83,7 +83,7 @@ namespace Web_shop.Controllers
                     var objFromDb = _prodRepo.FirstOrDefault(u => u.Id == productVM.Product.Id,isTracking:false);
                     if (files.Any())
                     {
-                        var upload = webRootPath + WC.ImagePath;
+                        var upload = Path.Combine(webRootPath,WC.ImagePath);
                         var fileName = Guid.NewGuid().ToString();
                         var extension = Path.GetExtension(files[0].FileName);
                         var oldFile = Path.Combine(upload, objFromDb.Image);

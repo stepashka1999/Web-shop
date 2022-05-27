@@ -113,31 +113,23 @@
                                                         <small class="text-muted">Price per Sqft: $@Model.Products[i].Price</small>
                                                     }
                                                 </div>
-                                                @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
-                                                {
                                                     <span class="text-muted">$@(Model.Products[i].Price * Model.Products[i].TempSqFt)</span>
-                                                }
                                             </li>
                                             orderTotal += Model.Products[i].Price * Model.Products[i].TempSqFt;
                                         }
-                                        @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
-                                        {
                                             <li class="list-group-item d-flex justify-content-between bg-light">
                                                 <small class="text-info"> Total (USD)</small>
                                                 <strong class="text-info">$@orderTotal</strong>
                                             </li>
-                                        }
+                                        
                                     </ul>
                                 </div>
-                                @if (User.IsInRole(Web_shop.Utility.WC.AdminRole))
-                                {
-                                    <div class="col-12">
+                                <div class="col-12">
                                             <div class="container">
                                                 <div id="dropin-container"></div>
                                                 <input id="nonce" name="payment_method_nonce" type="hidden" />
                                             </div>
                                     </div>
-                                }
                             </div>
                         </div>
                     </div>
@@ -187,9 +179,9 @@
 
 
         function validateInput() {
-            var app_name = document.getElementById("ApplicationUser_FullName").value;
-            var app_phone = document.getElementById("ApplicationUser_PhoneNumber").value;
-            var app_email = document.getElementById("ApplicationUser_Email").value;
+            var app_name = document.getElementById("User_FullName").value;
+            var app_phone = document.getElementById("User_PhoneNumber").value;
+            var app_email = document.getElementById("User_Email").value;
 
             if (app_name.toString() == '') {
                 Swal.fire({

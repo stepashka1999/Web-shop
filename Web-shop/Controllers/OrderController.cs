@@ -36,7 +36,7 @@ namespace Web_shop.Controllers
         {
             var orderListVM = new OrderListVM()
             {
-                OrderHList = _orderHRepo.All,
+                OrderHList = _orderHRepo.All.ToList(),
                 StatusList = WC.ListStatus.Select(i => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Text = i,

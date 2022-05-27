@@ -110,9 +110,7 @@ namespace Web_shop.Controllers
                     applicationUser = new ApplicationUser();
                 }
 
-                var gateway = _brain.BraintreeGateway;
-                var clientToken = gateway.ClientToken.Generate();
-                ViewBag.ClientToken = clientToken;
+                
             }
             else
             {
@@ -120,6 +118,10 @@ namespace Web_shop.Controllers
                 var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
                 applicationUser = _userRepo.FirstOrDefault(u => u.Id == claim.Value);
             }
+            
+            var gateway = _brain.BraintreeGateway;
+            var clientToken = gateway.ClientToken.Generate();
+            ViewBag.ClientToken = clientToken;
            
            
             List<ShoppingCart> shoppingCartList = new List<ShoppingCart>();
@@ -202,7 +204,7 @@ namespace Web_shop.Controllers
                 var gateway = _brain.BraintreeGateway;
                 var result = gateway.Transaction.Sale(request);
 
-                if (result.Target.ProcessorResponseText == WC.StatusApproved)
+                if (result.Target?.ProcessorResponseText == WC.StatusApproved)
                 {
                     orderHeader.TransactionId = result.Target.Id;
                     orderHeader.OrderStatus = WC.StatusApproved;

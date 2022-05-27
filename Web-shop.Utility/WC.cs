@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 
 namespace Web_shop.Utility
 {
     public static class WC
     {
-        public const string ImagePath = @"img/products/";
+        public static readonly string ImagePath = Path.Combine("img", "products");
 
         public const string SessionCart = "ShoppingCartSession";
 

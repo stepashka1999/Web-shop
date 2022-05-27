@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -26,11 +27,12 @@ namespace Web_shop
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>()
-                    .AddDefaultTokenProviders()
-                    .AddDefaultUI()
-                    .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddDefaultTokenProviders()
+                .AddDefaultUI()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddTransient<IEmailSender, EmailSender>();
             services.Configure<BrainTreeSettings>(Configuration.GetSection("BrainTree"));
@@ -54,11 +56,12 @@ namespace Web_shop
                 opt.Cookie.IsEssential = true;
             });
 
-            services.AddAuthentication().AddFacebook(options =>
-            {
-                options.AppId = "267080392231775";
-                options.AppSecret = "3f0ccf73281c1c2e7b124fc91db9c823";
-            });
+            services.AddAuthentication()
+                .AddFacebook(options =>
+                {
+                    options.AppId = "267080392231775";
+                    options.AppSecret = "3f0ccf73281c1c2e7b124fc91db9c823";
+                });
 
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
@@ -83,14 +86,12 @@ namespace Web_shop
             app.UseAuthentication();
             app.UseAuthorization();
             dbInitializer.Initialize();
-            
+
             app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -18,14 +19,17 @@ namespace Web_shop.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IRepository<Product> _prodRepo;
         private readonly IRepository<Category> _catRepo;
+        private readonly IWebHostEnvironment _env;
 
         public HomeController(ILogger<HomeController> logger,
                               IRepository<Product> prodRepo,
-                              IRepository<Category> catRepo)
+                              IRepository<Category> catRepo,
+                              IWebHostEnvironment env)
         {
             _logger = logger;
             _prodRepo = prodRepo;
             _catRepo = catRepo;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -57,6 +61,9 @@ namespace Web_shop.Controllers
                 ExistsInCart = shoppingCartList.Any(i => i.ProductId == id)
             };
 
+            ViewBag.RootPath = _env.WebRootPath;
+            
+            
             return View(detailsVM);
         }
 

@@ -16,6 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="20.1.0.56" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,11 @@
     <ProjectReference Include="..\Web-shop.DataAccess\Web-shop.DataAccess.csproj" />
     <ProjectReference Include="..\Web-shop.Models\Web-shop.Models.csproj" />
     <ProjectReference Include="..\Web-shop.Utility\Web-shop.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Inquiery\Details.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Inquiery\Index.cshtml" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
